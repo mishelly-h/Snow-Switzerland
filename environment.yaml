@@ -8,3 +8,5 @@ dependencies:
   - r-rjson
   - r-dplyr
   - r-glue
+  - r-sf
+  - r-ggswissmaps
