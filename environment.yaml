@@ -1,0 +1,10 @@
+name: 'snowy_environment'
+
+dependencies:
+  - r-base
+  - r-tidyverse
+  - r-shiny
+  - r-plotly
+  - r-rjson
+  - r-dplyr
+  - r-glue
