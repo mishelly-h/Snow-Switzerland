@@ -7,8 +7,18 @@ library(rjson)
 library(dplyr)
 library(glue)
 library(ggplot2)
+library(sf)
+library(ggswissmaps)
 
 
+# prepare map data
+ch <- shp_df[["g1l15"]]
+sf_data <- st_as_sf(ch, coords = c("long", "lat"), crs = "+proj=somerc +lat_0=46.9524056 +lon_0=7.43958333 +k_0=1 +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs")
+sf_data_wgs84 <- st_transform(sf_data, "+proj=longlat +datum=WGS84")
+ch$latitude <- st_coordinates(sf_data_wgs84)[, "Y"]
+ch$longitude <- st_coordinates(sf_data_wgs84)[, "X"]
+
+# prepare snow data
 df <- read_csv('../data/preprocessed/all_data.csv')
 month_order <- c('July', 'August', 'September', 'October', 
                  'November', 'December', 'January', 'February', 
@@ -110,34 +120,65 @@ server <- function(input, output, session) {
 
   # map
   output$map_plot <- renderPlotly({
-    return(
-      df |> 
-        plot_geo(locationmode = 'europe') |>
-        layout(geo = list(scope = 'europe'),
-               mapbox = list(
-                 zoom = 10,
-                 center = list(lon = 46, lat = 8))) |>
-        add_markers(x = ~Longitude, 
-                    y = ~Latitude,
-                    text = ~paste(Name),
-                    hoverinfo = "text",
-                    color = 'Stations',
-                    marker = list(color = "lightblue"),
-                    ) |> 
-        add_markers(data = filter(df, Name %in% c(input$station_filter) & 
-                                   Year %in% c(input$year_filter)), 
-                   x = ~Longitude, 
-                   y = ~Latitude,
-                   color = 'Selected',
-                   marker = list(color = "red"),
-                   text = ~paste(Name),
-                   hoverinfo = "text") |> 
-        config(displaylogo = FALSE,
-               scrollZoom= FALSE,
-               modeBarButtonsToRemove = c('pan', 'toImage', 'select2d', 'lasso2d')
-               )
-    )
+    p <- ggplot(ch, aes(x = longitude, y = latitude)) +
+      geom_path() + 
+      coord_equal() +
+      theme_white_f() + 
+      geom_point(data = filter(df, !(Name %in% c(input$station_filter)) &
+                                 !(Year %in% c(input$year_filter))), 
+                 aes(x = Longitude, 
+                     y = Latitude,
+                     group = Longitude, 
+                     text = Name),
+                 color = 'lightblue', size = 2) +
+      geom_point(data = filter(df, Name %in% c(input$station_filter) & 
+                                 Year %in% c(input$year_filter)),
+                 aes(x = Longitude, 
+                     y = Latitude,
+                     group = Longitude, 
+                     text = Name),
+                 color = 'red', size = 3)
+    
+    return(ggplotly(p, tooltip = c("text")) |> 
+             config(displaylogo = FALSE,
+                    scrollZoom = FALSE,
+                    modeBarButtonsToRemove = c('pan', 'toImage', 'select2d', 'lasso2d')
+                    )
+           )
   })
+  
+    
+    
+    
+#    renderPlotly({
+#    return(
+#      df |> 
+#        plot_geo(locationmode = 'europe') |>
+#        layout(geo = list(scope = 'europe'),
+#               mapbox = list(
+#                 zoom = 10,
+#                 center = list(lon = 46, lat = 8))) |>
+#        add_markers(x = ~Longitude, 
+#                    y = ~Latitude,
+#                    text = ~paste(Name),
+#                    hoverinfo = "text",
+#                    color = 'Stations',
+#                    marker = list(color = "lightblue"),
+#                    ) |> 
+#        add_markers(data = filter(df, Name %in% c(input$station_filter) & 
+#                                   Year %in% c(input$year_filter)), 
+#                   x = ~Longitude, 
+#                   y = ~Latitude,
+#                   color = 'Selected',
+#                   marker = list(color = "red"),
+#                   text = ~paste(Name),
+#                   hoverinfo = "text") |> 
+#        config(displaylogo = FALSE,
+#               scrollZoom= FALSE,
+#               modeBarButtonsToRemove = c('pan', 'toImage', 'select2d', 'lasso2d')
+#               )
+#    )
+#  })
   
   # lineplot per selection
   output$lineplot <- renderPlot({
