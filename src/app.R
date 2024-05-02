@@ -149,7 +149,7 @@ server <- function(input, output, session) {
                       y = !!sym(input$metric_filter),
                       color = factor(Year)
         )) +
-        labs(title = glue('{input$metric_filter} cm of Snow per Month in {input$station_filter} in {input$year_filter} (red)\n compared to all other years (grey)'), 
+        labs(title = glue('{input$metric_filter} cm of snow per month in {input$station_filter} in {input$year_filter} (red)\n compared to all other years (grey)'), 
              x = 'Month', 
              y = glue('{input$metric_filter} cm of Snow'), 
              color = 'Year') +
@@ -159,7 +159,7 @@ server <- function(input, output, session) {
                                       "December", "January", "February", "March", "April", 
                                       "May", "June")) +
         theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1),
-              plot.title = element_text(size = 18),
+              plot.title = element_text(size = 17),
               axis.text = element_text(size = 15),
               axis.title = element_text(size = 15)) +
         geom_line(data = filter(df, Name %in% c(input$station_filter) & Year %in% c(input$year_filter)),
@@ -178,10 +178,10 @@ server <- function(input, output, session) {
         ggplot(aes(x=!!sym(input$metric_filter))) +
         geom_histogram(stat="density") +
         theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),
-              plot.title = element_text(size = 18),
+              plot.title = element_text(size = 17),
               axis.text = element_text(size = 15),
               axis.title = element_text(size = 15)) +
-        labs(title = glue('{input$metric_filter} cm of Snow in {input$station_filter} in {input$month_filter} {input$year_filter} (red)\n compared to Distribution of {input$metric_filter} cm of Snow\n in {input$month_filter} in {input$station_filter} between {min(df$Year)} and {max(df$Year)}'), 
+        labs(title = glue('{input$metric_filter} cm of snow in {input$station_filter} in {input$month_filter} {input$year_filter} (red)\n compared to distribution of {input$metric_filter} cm of snow\n in {input$month_filter} in {input$station_filter} between {min(df$Year)} and {max(df$Year)}'), 
              x = glue('{input$metric_filter} cm of Snow'),
              y = 'Density'
              ) +
