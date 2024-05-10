@@ -25,6 +25,8 @@ month_order <- c('July', 'August', 'September', 'October',
                  'March', 'April', 'Mai', 'June')
 
 df$Month_fct <- factor(df$Month, levels = month_order, ordered=TRUE)
+
+# prepare styling
 colors <- c(rep('grey', each = 50))
 
 theme <- bslib::bs_theme(
@@ -38,7 +40,7 @@ theme <- bslib::bs_theme(
   "input-border-color" = "#B8BCC2"
 )
 
-
+# app
 ui <- fluidPage(
   theme = theme,
   
